@@ -1,6 +1,6 @@
 ################################################################################
 # Regression Project - House Price Prediction
-# Dataset: California Housing (Kaggle)
+# Dataset: California Housing (Google Drive)
 ################################################################################
 
 cat("REGRESSION PROJECT\n\n")
@@ -8,14 +8,16 @@ set.seed(42)
 
 # A. DATA COLLECTION
 cat("Loading dataset...\n")
-if (!require("kagglehub", quietly = TRUE)) {
-  install.packages("kagglehub", repos = "http://cran.rstudio.com/", quiet = TRUE)
-  library(kagglehub)
+if (file.exists("/tmp/california_housing.csv")) {
+  df_data <- read.csv("/tmp/california_housing.csv")
+} else {
+  file_id <- "1r5L8oHHKPBnGXNthqMRz8XZh-xOBvmTc"
+  url <- paste0("https://drive.google.com/uc?export=download&id=", file_id)
+  temp_file <- tempfile(fileext = ".csv")
+  download.file(url, temp_file, mode = "wb", quiet = TRUE)
+  df_data <- read.csv(temp_file)
+  write.csv(df_data, "/tmp/california_housing.csv", row.names = FALSE)
 }
-
-path <- kagglehub::dataset_download("camnugent/california-housing-prices")
-csv_file <- list.files(path, pattern = "\\.csv$", full.names = TRUE)[1]
-df_data <- read.csv(csv_file)
 cat("Dataset loaded\n\n")
 
 # B. DATA UNDERSTANDING

@@ -1,6 +1,6 @@
 ################################################################################
 # Clustering Project - Customer Segmentation
-# Dataset: Mall Customers (Kaggle)
+# Dataset: Mall Customers (Google Drive)
 ################################################################################
 
 cat("CLUSTERING PROJECT\n\n")
@@ -8,14 +8,16 @@ set.seed(42)
 
 # A. DATA COLLECTION
 cat("Loading dataset...\n")
-if (!require("kagglehub", quietly = TRUE)) {
-  install.packages("kagglehub", repos = "http://cran.rstudio.com/", quiet = TRUE)
-  library(kagglehub)
+if (file.exists("/tmp/mall_customers.csv")) {
+  df_data <- read.csv("/tmp/mall_customers.csv")
+} else {
+  file_id <- "1Ew4bXJ0nJ5TqNZDcDNZYT7MoWZN9VnmF"
+  url <- paste0("https://drive.google.com/uc?export=download&id=", file_id)
+  temp_file <- tempfile(fileext = ".csv")
+  download.file(url, temp_file, mode = "wb", quiet = TRUE)
+  df_data <- read.csv(temp_file)
+  write.csv(df_data, "/tmp/mall_customers.csv", row.names = FALSE)
 }
-
-path <- kagglehub::dataset_download("vjchoudhary7/customer-segmentation-tutorial-in-python")
-csv_file <- list.files(path, pattern = "\\.csv$", full.names = TRUE)[1]
-df_data <- read.csv(csv_file)
 cat("Dataset loaded\n\n")
 
 # B. DATA UNDERSTANDING
