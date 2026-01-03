@@ -8,15 +8,14 @@ set.seed(42)
 
 # A. DATA COLLECTION
 cat("Loading dataset...\n")
-if (file.exists("/tmp/california_housing.csv")) {
-  df_data <- read.csv("/tmp/california_housing.csv")
+if (file.exists("/tmp/test_dataset.csv")) {
+  df_data <- read.csv("/tmp/test_dataset.csv")
 } else {
-  file_id <- "1r5L8oHHKPBnGXNthqMRz8XZh-xOBvmTc"
+  file_id <- "1t4dovWScXCYnduCb8pSFF-XTQJA4iBwV"
   url <- paste0("https://drive.google.com/uc?export=download&id=", file_id)
   temp_file <- tempfile(fileext = ".csv")
   download.file(url, temp_file, mode = "wb", quiet = TRUE)
   df_data <- read.csv(temp_file)
-  write.csv(df_data, "/tmp/california_housing.csv", row.names = FALSE)
 }
 cat("Dataset loaded\n\n")
 
@@ -26,35 +25,44 @@ cat("Missing values:", sum(is.na(df_data)), "\n\n")
 
 pdf("regression_plots.pdf", width = 10, height = 8)
 par(mfrow = c(2, 2))
-hist(df_data$median_house_value, main = "House Value Distribution", 
-     xlab = "Price", col = "steelblue", breaks = 30)
-hist(df_data$median_income, main = "Income Distribution", 
-     xlab = "Income", col = "lightgreen", breaks = 30)
-plot(df_data$median_income, df_data$median_house_value, 
-     main = "Income vs Price", xlab = "Income", ylab = "Price", 
-     pch = 20, col = rgb(0, 0, 1, 0.3))
-boxplot(df_data$median_house_value, main = "Price Boxplot", 
-        ylab = "Price", col = "coral")
+numeric_cols <- names(df_data)[sapply(df_data, is.numeric)][1:4]
+for (col in numeric_cols) {
+  hist(df_data[[col]], main = paste("Distribution:", col), 
+       xlab = col, col = "steelblue", breaks = 30)
+}
 dev.off()
 par(mfrow = c(1, 1))
 
 # C. DATA PREPROCESSING
 cat("Preprocessing...\n")
-y <- df_data$median_house_value
-X <- df_data[, !(names(df_data) %in% c("median_house_value", "ocean_proximity"))]
+numeric_cols <- sapply(df_data, is.numeric)
+if ("Label" %in% names(df_data)) {
+  y <- as.numeric(factor(df_data$Label))
+  X <- df_data[, numeric_cols & names(df_data) != "Label"]
+} else {
+  y <- df_data[[ncol(df_data)]]
+  X <- df_data[, -ncol(df_data)]
+  X <- X[, sapply(X, is.numeric)]
+}
 
 for (col in names(X)) {
-  if (sum(is.na(X[[col]])) > 0) {
-    X[[col]][is.na(X[[col]])] <- median(X[[col]], na.rm = TRUE)
+  col_vals <- X[[col]]
+  finite_vals <- col_vals[is.finite(col_vals)]
+  if (length(finite_vals) > 0) {
+    replacement <- median(finite_vals, na.rm = TRUE)
+  } else {
+    replacement <- 0
   }
+  col_vals[is.na(col_vals) | is.infinite(col_vals)] <- replacement
+  X[[col]] <- col_vals
 }
 
-if ("total_rooms" %in% names(X) && "households" %in% names(X)) {
-  X$rooms_per_hh <- X$total_rooms / X$households
-  X$rooms_per_hh[is.infinite(X$rooms_per_hh)] <- 0
-}
+X_scaled <- as.data.frame(lapply(X, function(col) {
+  col_sd <- sd(col, na.rm = TRUE)
+  col_mean <- mean(col, na.rm = TRUE)
+  if (col_sd > 0) (col - col_mean) / col_sd else col - col_mean
+}))
 
-X_scaled <- as.data.frame(scale(X))
 valid <- complete.cases(X_scaled) & !is.na(y)
 X <- X_scaled[valid, ]
 y <- y[valid]
@@ -83,8 +91,8 @@ mae <- mean(abs(y_test - y_pred))
 r2 <- cor(y_test, y_pred)^2
 
 cat("=== RESULTS ===\n")
-cat(sprintf("RMSE: %.2f\n", rmse))
-cat(sprintf("MAE:  %.2f\n", mae))
+cat(sprintf("RMSE: %.4f\n", rmse))
+cat(sprintf("MAE:  %.4f\n", mae))
 cat(sprintf("R²:   %.4f\n\n", r2))
 
 cat("Top 10 Features:\n")

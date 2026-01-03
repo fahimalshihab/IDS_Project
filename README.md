@@ -1,54 +1,120 @@
 # Data Science Final Project
 
-Three independent R scripts demonstrating the complete data science lifecycle on real-world datasets.
+Three independent R scripts demonstrating the complete data science lifecycle on real-world datasets. All scripts use the same network traffic dataset from Google Drive for consistency.
 
-## Projects
+## Projects Overview
 
 ### 1. Classification - Network Traffic Classification
-**File:** `C-G01-final-classification.R`
+**Script:** `C-G01-final-classification.R` (142 lines)
 
-**Overview:** Classifies network traffic as Benign or Malicious using Random Forest algorithm.
+**Task:** Binary classification of network traffic (Benign vs Malicious) using Random Forest
 
-**Code Explanation:**
-- **Data Collection (A):** Downloads network traffic dataset from Google Drive (26,800 rows, 78 features). Checks for cached version to avoid re-downloading.
-- **Data Understanding (B):** Displays dataset dimensions, class distribution, and missing value count. Generates visualizations: class distribution bar chart, histograms of first 4 features, boxplots for outlier detection.
-- **Data Preprocessing (C):** Converts multi-class labels to binary (most common class = 0, rest = 1). Keeps only numeric features. Handles missing/infinite values with median imputation. Normalizes features using z-score standardization. Removes incomplete rows.
-- **Modeling (D):** Splits data 70/30 train/test. Trains Random Forest with 50 trees.
-- **Evaluation (E):** Generates confusion matrix. Calculates accuracy, precision, recall, F1-score. Displays top 10 important features. Creates visualizations: confusion matrix heatmap and feature importance bar chart.
+**Implementation:**
+- **Data Collection (A):** Loads network traffic dataset from Google Drive (26,800 rows, 78 features) with caching for faster reruns
+- **Data Understanding (B):** Explores data dimensions, class distribution, missing values, and generates EDA visualizations
+- **Data Preprocessing (C):** Converts multi-class to binary, handles missing/infinite values with median imputation, normalizes features using z-score standardization
+- **Modeling (D):** 70/30 train-test split, Random Forest with 50 trees
+- **Evaluation (E):** Confusion matrix, accuracy, precision, recall, F1-score, feature importance analysis
 
-**Performance:** ~98% accuracy, 98% precision, 97% recall
+**Results:** 98.66% accuracy, 98.37% precision, 97.36% recall, 97.86% F1-score
 
----
-
-### 2. Regression - House Price Prediction
-**File:** `C-G01-final-regression.R`
-
-**Overview:** Predicts median house values in California using Linear Regression.
-
-**Code Explanation:**
-- **Data Collection (A):** Downloads California Housing dataset from Kaggle using kagglehub package.
-- **Data Understanding (B):** Shows dataset dimensions and missing values. Creates EDA visualizations: house value distribution, income distribution, income vs price scatter plot, price boxplot.
-- **Data Preprocessing (C):** Separates target (median_house_value) from features. Removes categorical column (ocean_proximity). Imputes missing values with median. Engineers new feature (rooms_per_household = total_rooms / households). Normalizes all features using z-score. Removes incomplete rows.
-- **Modeling (D):** Splits data 70/30 train/test. Trains Linear Regression model.
-- **Evaluation (E):** Predicts on test set. Calculates RMSE (Root Mean Squared Error), MAE (Mean Absolute Error), R² (coefficient of determination). Shows top 10 influential features. Creates visualizations: actual vs predicted scatter, residuals plot, residual distribution histogram, Q-Q plot for normality check.
-
-**Metrics:** RMSE, MAE, R²
+**Outputs:**
+- `classification_plots.pdf` - EDA visualizations (class distribution, feature histograms, boxplots)
+- `classification_results.pdf` - Model performance (confusion matrix heatmap, feature importance)
 
 ---
 
-### 3. Clustering - Customer Segmentation
-**File:** `C-G01-final-clustering.R`
+### 2. Regression - Network Flow Prediction
+**Script:** `C-G01-final-regression.R` (125 lines)
 
-**Overview:** Segments mall customers into groups based on demographics and spending behavior using K-Means.
+**Task:** Regression analysis to predict network flow characteristics using Linear Regression
 
-**Code Explanation:**
-- **Data Collection (A):** Downloads Mall Customers dataset from Kaggle.
-- **Data Understanding (B):** Displays dataset size and missing values. Creates EDA visualizations: gender distribution, age histogram, income histogram, spending score histogram.
-- **Data Preprocessing (C):** Removes ID column. Encodes Gender as binary (Male=1, Female=0). Normalizes all features using z-score. Removes incomplete rows.
-- **Modeling (D):** Finds optimal number of clusters using Elbow Method (within-cluster sum of squares) and Silhouette Method. Selects best K based on highest silhouette score. Trains final K-Means model with optimal clusters.
-- **Evaluation (E):** Shows cluster sizes and distribution. Calculates Silhouette Score (cluster quality) and Variance Explained. Displays cluster profiles with mean values for each feature per cluster. Creates visualizations: cluster size bar chart, silhouette values plot, elbow curve, PCA-reduced 2D cluster plot.
+**Implementation:**
+- **Data Collection (A):** Uses same network traffic dataset from Google Drive with caching
+- **Data Understanding (B):** Analyzes dataset structure and generates distribution visualizations
+- **Data Preprocessing (C):** Converts categorical labels to numeric, handles missing/infinite values, normalizes features with z-score standardization
+- **Modeling (D):** 70/30 train-test split, Linear Regression model
+- **Evaluation (E):** RMSE, MAE, R² metrics, coefficient analysis, residual diagnostics
 
-**Metrics:** Silhouette Score, Variance Explained
+**Results:** RMSE: 1.4084, MAE: 1.0283, R²: 0.4935
+
+**Outputs:**
+- `regression_plots.pdf` - EDA visualizations (feature distributions)
+- `regression_results.pdf` - Model diagnostics (actual vs predicted, residuals, Q-Q plot, residual histogram)
+
+---
+
+### 3. Clustering - Network Traffic Segmentation
+**Script:** `C-G01-final-clustering.R` (133 lines)
+
+**Task:** Unsupervised clustering to segment network traffic patterns using K-Means
+
+**Implementation:**
+- **Data Collection (A):** Uses network traffic dataset from Google Drive (sampled to 5,000 rows for performance)
+- **Data Understanding (B):** Explores data structure and generates feature distribution visualizations
+- **Data Preprocessing (C):** Handles missing/infinite values, normalizes features, samples data for computational efficiency
+- **Modeling (D):** Optimal cluster selection using Elbow Method and Silhouette Analysis (tests K=2-8), trains K-Means with best K
+- **Evaluation (E):** Silhouette score, variance explained, cluster size analysis, cluster profile statistics
+
+**Results:** 2 optimal clusters, Silhouette Score: 0.9491, Variance Explained: 21.58%
+
+**Outputs:**
+- `clustering_plots.pdf` - EDA visualizations (feature distributions)
+- `clustering_results.pdf` - Clustering analysis (cluster sizes, silhouette plot, elbow curve, PCA visualization)
+
+---
+
+## Requirements
+
+Install required R packages:
+```r
+install.packages(c("randomForest", "cluster"))
+```
+
+## Usage
+
+Run each script independently in R or RStudio:
+```r
+source("C-G01-final-classification.R")
+source("C-G01-final-regression.R")
+source("C-G01-final-clustering.R")
+```
+
+Or from command line:
+```bash
+Rscript C-G01-final-classification.R
+Rscript C-G01-final-regression.R
+Rscript C-G01-final-clustering.R
+```
+
+## Dataset
+
+All scripts use the same network traffic dataset hosted on Google Drive:
+- **Size:** 26,800 rows × 78 features
+- **Type:** Network flow statistics (packet sizes, timing, protocols, etc.)
+- **Access:** Automatically downloaded and cached on first run
+- **Cache Location:** `/tmp/test_dataset.csv`
+
+## Data Science Lifecycle (A-E)
+
+Each script implements all five stages:
+- **A. Data Collection** - Automated dataset loading from Google Drive with caching
+- **B. Data Understanding** - Exploratory analysis with statistical summaries and visualizations
+- **C. Data Preprocessing** - Cleaning, normalization, feature engineering, missing value handling
+- **D. Modeling** - Training machine learning models appropriate to each task
+- **E. Evaluation** - Performance metrics, model interpretation, and result visualizations
+
+## Output Files
+
+All scripts generate PDF visualizations:
+
+| Script | EDA Plots | Results Plots |
+|--------|-----------|---------------|
+| Classification | `classification_plots.pdf` | `classification_results.pdf` |
+| Regression | `regression_plots.pdf` | `regression_results.pdf` |
+| Clustering | `clustering_plots.pdf` | `clustering_results.pdf` |
+
+**Note:** PDF files are not committed to the repository. Run the scripts to generate them locally.
 
 ## Requirements
 
